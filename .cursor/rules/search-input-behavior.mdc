@@ -1,0 +1,105 @@
+---
+alwaysApply: true
+---
+
+# Ido File Explorer - Search Input Behavior
+
+## Overview
+
+This VS Code extension provides Emacs-style file navigation with a path-based search interface. The search input follows specific rules for parsing and filtering files.
+
+## Input Format
+
+The search input follows this structure:
+
+```
+directoryA/subdirectoryB/subsubdirectory/<name prefix>
+```
+
+## Parsing Rules
+
+### 1. Directory Path + File Filter Split
+
+- The input is split at the **last forward slash** (`/`)
+- **Before the slash**: Directory path (relative to workspace root)
+- **After the slash**: File filter (case-insensitive substring match)
+
+### 2. Directory Path Handling
+
+- **Empty directory path**: Lists files from workspace root
+- **Relative path**: Joins with workspace root to get full directory path
+- **Invalid path**: Shows error message and empty results
+
+### 3. File Filter Behavior
+
+- **Empty filter**: Shows all files and directories in the specified directory
+- **Non-empty filter**: Shows only files/directories whose names contain the filter string (case-insensitive)
+- **Partial matches**: Supports fuzzy matching - any substring match is included
+
+## Examples
+
+### Basic Navigation
+
+```
+src/                    → Lists all files in src/ directory
+src/ex                  → Lists files in src/ containing "ex" (extension.ts, etc.)
+src/extension.ts        → Lists files in src/ containing "extension.ts"
+```
+
+### Root Level
+
+```
+                         → Lists all files in workspace root
+package                  → Lists files in root containing "package" (package.json, etc.)
+```
+
+### Deep Navigation
+
+```
+src/test/               → Lists all files in src/test/ directory
+src/test/ex             → Lists files in src/test/ containing "ex"
+```
+
+## Implementation Details
+
+### Search Logic
+
+1. Parse input by finding last `/`
+2. Extract directory path and file filter
+3. Join workspace root with directory path
+4. List all files/directories in that directory
+5. Let QuickPick handle natural filtering based on user input
+6. Add "create file" item when no current items match the search query
+7. Use QuickPick's current items (not stale captured variables) for accurate filtering
+
+### Error Handling
+
+- Invalid directory paths show error messages
+- Non-existent directories return empty results
+- File system errors are caught and displayed to user
+
+## UI Behavior
+
+- **Placeholder**: there is no placeholder
+- **Title**: Shows current relative path
+- **Items**: Displayed with file/directory icons and descriptions
+- **Selection**: Enter opens files, navigates into directories
+
+- **Tab key**:
+
+  - if a partial match, completes to the first match.
+  - if a directory, descends into the directory
+
+- **Backspace**:
+
+  - if the last character is '/', deletes the entire directory
+  - otherwise deletes a character
+
+- **Create File**: When typing a search query that doesn't match any existing files, a "📄 Create 'filename'" item appears, allowing users to create new files directly from the search interface
+
+## Keyboard Shortcuts
+
+- `Ctrl+Shift+P`: Open the file explorer
+- `Enter`: Open selected file or navigate into directory
+- `Escape`: Close the explorer
+- Arrow keys: Navigate through results

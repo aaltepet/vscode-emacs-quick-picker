@@ -1,71 +1,145 @@
-# ido-file-explorer README
+# Ido File Explorer
 
-This is the README for your extension "ido-file-explorer". After writing up a brief description, we recommend including the following sections.
+A VS Code extension that provides Emacs-style file navigation with a path-based search interface. The search input follows specific rules for parsing and filtering files, starting from the current file's directory instead of the workspace root.
 
-## Features
+## 🎯 Why This Extension?
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+VS Code's default Quick Open (`Ctrl+P`) always searches from the workspace root, which can be frustrating when you know the general location of a file but not its exact name. This extension brings the intuitive file navigation experience from Emacs (`C-x C-f`) to VS Code.
 
-For example if there is an image subfolder under your extension project workspace:
+## ✨ Features
 
-\!\[feature X\]\(images/feature-x.png\)
+- **Context-aware search**: Starts from the current file's directory
+- **Smart navigation**: Use "Go Up" button or ".." item to navigate up directories
+- **File filtering**: Type to filter files and directories in the current location
+- **File creation**: Create new files directly from the search interface when no matches are found
+- **Keyboard shortcuts**: Quick access with `Ctrl+Shift+P`
+- **Path-based interface**: Shows current directory path in the title
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## 🚀 Usage
 
-## Requirements
+### Basic Navigation
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+1. **Open the extension**: `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+2. **Navigate directories**: Use arrow keys to move through files and folders
+3. **Enter directories**: Press Enter on a folder to drill down
+4. **Go up**: Use the "Go Up" button or select ".." item to navigate up one level
+5. **Open files**: Press Enter on a file to open it
+6. **Create files**: Type a filename that doesn't exist to see a "📄 Create 'filename'" option
 
-## Extension Settings
+### Search Features
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- **Smart filtering**: Type to filter files and directories in the current location
+- **Case-insensitive**: Works regardless of capitalization
+- **File creation**: When no matches are found, a "📄 Create 'filename'" item appears
+- **Path display**: Current directory path is shown in the title
 
-For example:
+## 🛠️ Development
 
-This extension contributes the following settings:
+### Prerequisites
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- Node.js >= 18.0.0
+- Yarn 4.x
+- VS Code
 
-## Known Issues
+### Setup
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+1. **Install dependencies**:
 
-## Release Notes
+   ```bash
+   yarn install
+   ```
 
-Users appreciate release notes as you update your extension.
+2. **Build the extension**:
 
-### 1.0.0
+   ```bash
+   yarn build
+   ```
 
-Initial release of ...
+3. **Development mode**:
 
-### 1.0.1
+   ```bash
+   yarn dev
+   ```
 
-Fixed issue #.
+4. **Package for distribution**:
+   ```bash
+   yarn package
+   ```
 
-### 1.1.0
+### Project Structure
 
-Added features X, Y, and Z.
+```
+ido-file-explorer/
+├── src/
+│   ├── extension.ts              # Main extension logic
+│   └── test/                     # Unit and integration tests
+├── out/                          # Compiled JavaScript
+├── package.json                  # Extension manifest
+├── tsconfig.json                 # TypeScript configuration
+├── biome.json                    # Linting configuration
+└── README.md                     # This file
+```
+
+## 🎨 How It Works
+
+### QuickPick Interface
+
+The extension uses VS Code's QuickPick API to create a file browser that:
+
+- Shows the contents of the directory of the file in the active editor
+- Allows navigation with arrow keys, ctrl+[n|p], and enter key
+- filter directory contents
+- allows for creating a new file in the active directory (just type the filename in the picker)
+
+## 🔧 Configuration
+
+### Keyboard Shortcuts
+
+The default shortcut is `Ctrl+Shift+P`, but you can customize it in VS Code's keybindings:
+
+```json
+{
+  "key": "ctrl+shift+p",
+  "command": "ido-file-explorer.open",
+  "when": "!inQuickOpen"
+}
+```
+
+### Settings
+
+The extension respects VS Code's file exclusion settings:
+
+- `files.exclude`: Files/folders to hide from search
+- `search.exclude`: Files/folders to exclude from search
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by Emacs' intuitive file navigation (`C-x C-f`) and "ido" enhancements
+- Uses TypeScript for type safety and better development experience
+
+## 🐛 Limitations
+
+- Performance may vary with very large directories
+- Limited to single workspace folder support
+
+## 📈 Roadmap
+
+- [ ] Add file type icons
+- [ ] Switch to standard quickpick for advanced searching
+- [ ] Support for multiple workspace folders
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Made with ❤️ for VS Code users who miss Emacs-style file navigation**

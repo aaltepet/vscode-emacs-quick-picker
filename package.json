@@ -3,8 +3,13 @@
 	"displayName": "ido-file-explorer",
 	"description": "find files like emacs ido",
 	"version": "0.0.1",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aaltepet/vscode-ido-file-explorer.git"
+	},
 	"engines": {
-		"vscode": "^1.103.0"
+		"vscode": "^1.99.0"
 	},
 	"categories": [
 		"Other"
@@ -14,29 +19,34 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "ido-file-explorer.helloWorld",
-				"title": "Hello World"
+				"command": "ido-file-explorer.open",
+				"title": "Open Ido File Explorer"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "ido-file-explorer.open",
+				"key": "ctrl+shift+p",
+				"when": "!inQuickOpen"
 			}
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "yarn run compile",
+		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile && yarn run lint",
+		"pretest": "npm run compile && npm run lint",
 		"lint": "biome check --write src",
 		"test": "vscode-test"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "^2.1.4",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "22.x",
-		"@types/vscode": "^1.103.0",
+		"@types/vscode": "^1.99.0",
 		"@vscode/test-cli": "^0.0.11",
 		"@vscode/test-electron": "^2.5.2",
 		"typescript": "^5.9.2"
 	},
-	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
-	"dependencies": {
-		"@biomejs/biome": "^2.1.4"
-	}
+	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
