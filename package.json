@@ -1,12 +1,13 @@
 {
-	"name": "ido-file-explorer",
-	"displayName": "ido-file-explorer",
-	"description": "find files like emacs ido",
-	"version": "0.0.1",
+	"name": "emacs-quick-picker",
+	"displayName": "Emacs-like Quick Picker",
+	"description": "Emacs-like file navigation for VS Code",
+	"version": "0.0.2",
+	"publisher": "aaltepet",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/aaltepet/vscode-ido-file-explorer.git"
+		"url": "https://github.com/aaltepet/vscode-emacs-quick-picker.git"
 	},
 	"engines": {
 		"vscode": "^1.99.0"
@@ -14,18 +15,22 @@
 	"categories": [
 		"Other"
 	],
+	"keywords": [
+		"emacs",
+		"navigation"
+	],
 	"activationEvents": [],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "ido-file-explorer.open",
-				"title": "Open Ido File Explorer"
+				"command": "emacs-quick-picker.open",
+				"title": "Open Emacs Quick Picker Explorer"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "ido-file-explorer.open",
+				"command": "emacs-quick-picker.open",
 				"key": "ctrl+shift+p",
 				"when": "!inQuickOpen"
 			}
@@ -47,6 +52,5 @@
 		"@vscode/test-cli": "^0.0.11",
 		"@vscode/test-electron": "^2.5.2",
 		"typescript": "^5.9.2"
-	},
-	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+	}
 }
