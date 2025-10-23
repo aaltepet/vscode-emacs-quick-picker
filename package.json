@@ -3,7 +3,7 @@
 	"displayName": "Emacs-like Quick Picker",
 	"description": "Emacs-like file navigation for VS Code",
 	"icon": "./emacs.png",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"publisher": "aaltepet",
 	"license": "MIT",
 	"repository": {
