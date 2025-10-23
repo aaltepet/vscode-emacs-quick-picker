@@ -42,3 +42,23 @@
 * [Publish your extension](https://code.visualstudio.com/api/working-with-extensions/publishing-extension) on the VS Code extension marketplace.
 * Automate builds by setting up [Continuous Integration](https://code.visualstudio.com/api/working-with-extensions/continuous-integration).
 * Integrate to the [report issue](https://code.visualstudio.com/api/get-started/wrapping-up#issue-reporting) flow to get issue and feature requests reported by users.
+
+## Building installer
+
+Run:
+
+`vsce package`
+
+To install locally:
+
+`vscode install-extension emacs-quick-picker-1.0.1.vsix`
+
+`cursor install-extension emacs-quick-picker-1.0.1.vsix`
+
+## Publishing new version
+
+You may need a new PAT (Personal Access Token):
+
+https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token
+
+Then `vsce login aaltepet`
