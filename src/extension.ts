@@ -21,6 +21,63 @@ interface FileItem extends vscode.QuickPickItem {
 }
 
 let currentPath: string = "";
+let navigationRoot: string = "";
+
+export function isPathWithinRoot(
+	targetPath: string,
+	rootPath: string,
+): boolean {
+	const relative = path.relative(rootPath, targetPath);
+	return (
+		relative === "" ||
+		(!relative.startsWith("..") && !path.isAbsolute(relative))
+	);
+}
+
+async function pathExists(targetPath: string): Promise<boolean> {
+	try {
+		await fs.promises.access(targetPath);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+async function findClosestGitRoot(
+	startPath: string,
+): Promise<string | undefined> {
+	let candidate = path.resolve(startPath);
+	const parsed = path.parse(candidate);
+
+	while (true) {
+		const gitPath = path.join(candidate, ".git");
+		if (await pathExists(gitPath)) {
+			return candidate;
+		}
+
+		if (candidate === parsed.root) {
+			return undefined;
+		}
+
+		candidate = path.dirname(candidate);
+	}
+}
+
+export async function resolveNavigationRoot(
+	currentDirectory: string,
+	workspaceRoot: string | undefined,
+	findGitRoot: (
+		startPath: string,
+	) => Promise<string | undefined> = findClosestGitRoot,
+): Promise<string> {
+	if (workspaceRoot && isPathWithinRoot(currentDirectory, workspaceRoot)) {
+		return workspaceRoot;
+	}
+
+	return (
+		(await findGitRoot(currentDirectory)) ?? workspaceRoot ?? currentDirectory
+	);
+}
 
 export function getRelativePath(fullPath: string): string {
 	const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -55,13 +112,20 @@ export function getFullPath(relativePath: string): string {
 async function show() {
 	// Get current file's directory
 	const activeEditor = vscode.window.activeTextEditor;
+	const workspaceFolders = vscode.workspace.workspaceFolders;
+	const workspaceRoot =
+		workspaceFolders && workspaceFolders.length > 0
+			? workspaceFolders[0].uri.fsPath
+			: undefined;
+
 	if (activeEditor) {
 		currentPath = path.dirname(activeEditor.document.uri.fsPath);
+		navigationRoot = await resolveNavigationRoot(currentPath, workspaceRoot);
 	} else {
 		// Fallback to workspace root
-		const workspaceFolders = vscode.workspace.workspaceFolders;
-		if (workspaceFolders && workspaceFolders.length > 0) {
-			currentPath = workspaceFolders[0].uri.fsPath;
+		if (workspaceRoot) {
+			currentPath = workspaceRoot;
+			navigationRoot = workspaceRoot;
 		} else {
 			vscode.window.showErrorMessage("No workspace or active file found");
 			return;
@@ -184,19 +248,15 @@ async function getDirectoryItems(): Promise<FileItem[]> {
 		const files = await fs.promises.readdir(currentPath);
 		const items: FileItem[] = [];
 
-		// Add "Go Up" item if not at workspace root
-		const workspaceFolders = vscode.workspace.workspaceFolders;
-		if (workspaceFolders && workspaceFolders.length > 0) {
-			const workspaceRoot = workspaceFolders[0].uri.fsPath;
-			if (currentPath !== workspaceRoot) {
-				items.push({
-					label: "..",
-					description: "Go up one directory",
-					uri: vscode.Uri.file(path.dirname(currentPath)),
-					isDirectory: true,
-					isFile: false,
-				});
-			}
+		// Add "Go Up" item while staying within navigation root
+		if (currentPath !== navigationRoot) {
+			items.push({
+				label: "..",
+				description: "Go up one directory",
+				uri: vscode.Uri.file(path.dirname(currentPath)),
+				isDirectory: true,
+				isFile: false,
+			});
 		}
 
 		// Add regular files and directories
@@ -237,18 +297,10 @@ async function navigateToPathAndUpdateQuickPick(
 	quickPick: vscode.QuickPick<FileItem>,
 	newPath: string,
 ) {
-	// Check if we're trying to go above workspace root
-	const workspaceFolders = vscode.workspace.workspaceFolders;
-	if (workspaceFolders && workspaceFolders.length > 0) {
-		const workspaceRoot = workspaceFolders[0].uri.fsPath;
-		if (
-			newPath.length < workspaceRoot.length ||
-			!newPath.startsWith(workspaceRoot)
-		) {
-			// Don't allow navigation above workspace root
-			console.log("Prevented navigation above workspace root");
-			return;
-		}
+	// Prevent navigation above the current navigation root.
+	if (!isPathWithinRoot(newPath, navigationRoot)) {
+		console.log("Prevented navigation above navigation root");
+		return;
 	}
 
 	// Navigate to the new path
@@ -266,4 +318,5 @@ async function navigateToPathAndUpdateQuickPick(
 // This method is called when your extension is deactivated
 export function deactivate() {
 	currentPath = "";
+	navigationRoot = "";
 }

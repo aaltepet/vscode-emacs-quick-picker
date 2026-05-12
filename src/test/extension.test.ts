@@ -4,7 +4,12 @@ import * as path from "node:path";
 import * as vscode from "vscode";
 
 // Import the actual functions from the extension
-import { getFullPath, getRelativePath } from "../extension";
+import {
+	getFullPath,
+	getRelativePath,
+	isPathWithinRoot,
+	resolveNavigationRoot,
+} from "../extension";
 
 suite("Ido File Explorer - Search Input Tests", () => {
 	let tempTestDir: string;
@@ -175,6 +180,45 @@ suite("Ido File Explorer - Search Input Tests", () => {
 
 		// Should return the relative path from workspace root
 		assert.strictEqual(searchInputValue, "src/");
+	});
+
+	test("isPathWithinRoot should support sibling prefixes safely", () => {
+		const rootPath = "/workspace/project";
+		const siblingPath = "/workspace/project-2/src";
+		assert.strictEqual(isPathWithinRoot(siblingPath, rootPath), false);
+	});
+
+	test("resolveNavigationRoot should use workspace root for in-workspace file", async () => {
+		const currentDirectory = path.join(tempTestDir, "src");
+		const workspaceRoot = tempTestDir;
+		const result = await resolveNavigationRoot(
+			currentDirectory,
+			workspaceRoot,
+			async () => "/some/other/root",
+		);
+		assert.strictEqual(result, workspaceRoot);
+	});
+
+	test("resolveNavigationRoot should use nearest git root outside workspace", async () => {
+		const workspaceRoot = "/repo/main";
+		const worktreeDirectory = "/Users/me/.cursor/worktrees/repo-123/src";
+		const expectedGitRoot = "/Users/me/.cursor/worktrees/repo-123";
+		const result = await resolveNavigationRoot(
+			worktreeDirectory,
+			workspaceRoot,
+			async () => expectedGitRoot,
+		);
+		assert.strictEqual(result, expectedGitRoot);
+	});
+
+	test("resolveNavigationRoot should fall back to current directory when no workspace or git root", async () => {
+		const currentDirectory = "/tmp/scratch";
+		const result = await resolveNavigationRoot(
+			currentDirectory,
+			undefined,
+			async () => undefined,
+		);
+		assert.strictEqual(result, currentDirectory);
 	});
 
 	// Integration test that opens VS Code to a file and verifies the panel
